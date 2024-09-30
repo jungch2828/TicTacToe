@@ -3,10 +3,10 @@ import pygame
 pygame.init()
 pygame.display.set_caption("TicTacToe")
 
-SCREEN_WIDTH = 600
-SCREEN_HEIGHT = 600
+SCREEN_SIZE = 600
+SQUARE_SIZE = SCREEN_SIZE / 3
 LINE_WIDTH = 10
-SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+SCREEN = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
 
 
 WHITE = (255, 255, 255)
@@ -29,8 +29,8 @@ result = ""
 
 def draw_grid():
     for i in range(1, 3):
-        pygame.draw.line(SCREEN, WHITE, ((i * SCREEN_WIDTH / 3), 0), ((i * SCREEN_WIDTH/3), SCREEN_HEIGHT), LINE_WIDTH)
-        pygame.draw.line(SCREEN, WHITE, (0, (i * SCREEN_HEIGHT / 3)), (SCREEN_WIDTH, (i * SCREEN_HEIGHT / 3)), LINE_WIDTH)
+        pygame.draw.line(SCREEN, WHITE, ((i * SQUARE_SIZE), 0), ((i * SCREEN_SIZE/3), SCREEN_SIZE), LINE_WIDTH)
+        pygame.draw.line(SCREEN, WHITE, (0, (i * SQUARE_SIZE)), (SCREEN_SIZE, (i * SQUARE_SIZE)), LINE_WIDTH)
 
 def draw_board():
     for row in range(3):
@@ -41,17 +41,17 @@ def draw_board():
                 draw_o(row, col)
 
 def draw_x(row, col):
-    start = ((row * SCREEN_WIDTH / 3) + SCREEN_WIDTH / 12, (col * SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 12)
-    end = ((row * SCREEN_WIDTH / 3) + 3 * SCREEN_WIDTH / 12, (col * SCREEN_HEIGHT / 3) + 3 * SCREEN_HEIGHT / 12)
+    start = ((row * SQUARE_SIZE) + SCREEN_SIZE / 12, (col * SQUARE_SIZE) + SCREEN_SIZE / 12)
+    end = ((row * SQUARE_SIZE) + 3 * SCREEN_SIZE / 12, (col * SQUARE_SIZE) + 3 * SCREEN_SIZE / 12)
     pygame.draw.line(SCREEN, WHITE, start, end, LINE_WIDTH)
 
-    start = ((row * SCREEN_WIDTH / 3) + 3 * SCREEN_WIDTH / 12, (col * SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 12)
-    end = ((row * SCREEN_WIDTH / 3) + SCREEN_WIDTH / 12, (col * SCREEN_HEIGHT / 3) + 3 * SCREEN_HEIGHT / 12)
+    start = ((row * SQUARE_SIZE) + 3 * SCREEN_SIZE / 12, (col * SQUARE_SIZE) + SCREEN_SIZE / 12)
+    end = ((row * SQUARE_SIZE) + SCREEN_SIZE / 12, (col * SQUARE_SIZE) + 3 * SCREEN_SIZE / 12)
     pygame.draw.line(SCREEN, WHITE, start, end, LINE_WIDTH)
 
 def draw_o(row, col):
-    center = ((row * SCREEN_WIDTH / 3) + SCREEN_WIDTH / 6, (col * SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 6)
-    pygame.draw.circle(SCREEN, WHITE, center, SCREEN_WIDTH / 12, LINE_WIDTH)
+    center = ((row * SQUARE_SIZE) + SCREEN_SIZE / 6, (col * SQUARE_SIZE) + SCREEN_SIZE / 6)
+    pygame.draw.circle(SCREEN, WHITE, center, SCREEN_SIZE / 12, LINE_WIDTH)
 
 def mouse_event():
     if 'OX'[turn % 2] == 'X': 
@@ -72,12 +72,12 @@ def check_result():
         if board[1][0] == board[1][2] == var:
             gaming = False
             result = "o_won" if (var == "O") else "x_won"
-    elif board[0][0] != None:
+    if board[0][0] != None:
         var = board[0][0]
         if board[0][1] == board[0][2] == var or board[1][0] == board[2][0] == var:
             gaming = False
             result = "o_won" if (var == "O") else "x_won"
-    elif board[2][2] != None:
+    if board[2][2] != None:
         var = board[2][2]
         if board[2][0] == board[2][1] == var or board[0][2] == board[1][2] == var:
             gaming = False
@@ -96,7 +96,7 @@ def show_result():
         message = FONT.render('TIE!', True, WHITE)
 
     message_rect = message.get_rect()
-    message_rect.center = (SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+    message_rect.center = (SCREEN_SIZE/2, SCREEN_SIZE/2)
     pygame.draw.rect(SCREEN, BLACK, message_rect)
     SCREEN.blit(message, message_rect)
 
@@ -113,8 +113,8 @@ while True:
 
     mouse_x = pygame.mouse.get_pos()[0]
     mouse_y = pygame.mouse.get_pos()[1]
-    mouse_row = int(mouse_x//(SCREEN_WIDTH/3))
-    mouse_col = int(mouse_y//(SCREEN_HEIGHT/3))
+    mouse_row = int(mouse_x//SQUARE_SIZE)
+    mouse_col = int(mouse_y//SQUARE_SIZE)
 
     draw_grid()
     draw_board()
