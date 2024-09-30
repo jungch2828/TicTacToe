@@ -3,118 +3,126 @@ import pygame
 pygame.init()
 pygame.display.set_caption("TicTacToe")
 
-#screen
-screen_width = 600
-screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height))
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+LINE_WIDTH = 10
+SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-#board
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+
+FONT = pygame.font.SysFont("", 100)
+
+CLOCK = pygame.time.Clock()
+FPS = 60
+
 board = \
 [[None, None, None],
  [None, None, None],
  [None, None, None]]
 
-#color
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-
-#game over message font
-font = pygame.font.SysFont("", 100)
-
-#etc
-clock = pygame.time.Clock()
-running = True
-line_width = 5
 turn = 0
+gaming = True
+result = ""
 
-#functions
-def grid():
-    for i in range(2):
-        pygame.draw.line(screen, WHITE, ((screen_width/3)*(i+1), 0), ((screen_width/3)*(i+1), screen_height), line_width)
-        pygame.draw.line(screen, WHITE, (0, (screen_height/3)*(i+1)), (screen_width, (screen_height/3)*(i+1)), line_width)
+def draw_grid():
+    for i in range(1, 3):
+        pygame.draw.line(SCREEN, WHITE, ((i * SCREEN_WIDTH / 3), 0), ((i * SCREEN_WIDTH/3), SCREEN_HEIGHT), LINE_WIDTH)
+        pygame.draw.line(SCREEN, WHITE, (0, (i * SCREEN_HEIGHT / 3)), (SCREEN_WIDTH, (i * SCREEN_HEIGHT / 3)), LINE_WIDTH)
 
-def mouse_check():
-    if board[mouse_row][mouse_col] == None:
-        return True
-    else:
-        return False
-
-def mouse_event():
-    if 'OX'[turn%2] == 'X':
-        if board[mouse_row][mouse_col] == None:
-            board[mouse_row][mouse_col] = 'X'
-    else:
-        if board[mouse_row][mouse_col] == None:
-            board[mouse_row][mouse_col] = 'O'
-
-def draw_OX():
+def draw_board():
     for row in range(3):
         for col in range(3):
-            if board[row][col] == 'X':
-                X_start_pos = ((row*screen_width/3)+screen_width/12, (col*screen_height/3)+screen_height/12)
-                X_end_pos = ((row*screen_width/3)+3*screen_width/12, (col*screen_height/3)+3*screen_height/12)
-                pygame.draw.line(screen, WHITE, X_start_pos, X_end_pos, line_width)
-                X_start_pos = ((row*screen_width/3)+3*screen_width/12, (col*screen_height/3)+screen_height/12)
-                X_end_pos = ((row*screen_width/3)+screen_width/12, (col*screen_height/3)+3*screen_height/12)
-                pygame.draw.line(screen, WHITE, X_start_pos, X_end_pos, line_width)
-            elif board[row][col] == 'O':
-                O_center = ((row*screen_width/3)+screen_width/6, (col*screen_height/3)+screen_height/6)
-                pygame.draw.circle(screen, WHITE, O_center, screen_width/12, line_width)
+            if board[row][col] == 'X': 
+                draw_x(row, col)
+            elif board[row][col] == 'O': 
+                draw_o(row, col)
 
-def check_board():
-    global var
+def draw_x(row, col):
+    start = ((row * SCREEN_WIDTH / 3) + SCREEN_WIDTH / 12, (col * SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 12)
+    end = ((row * SCREEN_WIDTH / 3) + 3 * SCREEN_WIDTH / 12, (col * SCREEN_HEIGHT / 3) + 3 * SCREEN_HEIGHT / 12)
+    pygame.draw.line(SCREEN, WHITE, start, end, LINE_WIDTH)
+
+    start = ((row * SCREEN_WIDTH / 3) + 3 * SCREEN_WIDTH / 12, (col * SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 12)
+    end = ((row * SCREEN_WIDTH / 3) + SCREEN_WIDTH / 12, (col * SCREEN_HEIGHT / 3) + 3 * SCREEN_HEIGHT / 12)
+    pygame.draw.line(SCREEN, WHITE, start, end, LINE_WIDTH)
+
+def draw_o(row, col):
+    center = ((row * SCREEN_WIDTH / 3) + SCREEN_WIDTH / 6, (col * SCREEN_HEIGHT / 3) + SCREEN_HEIGHT / 6)
+    pygame.draw.circle(SCREEN, WHITE, center, SCREEN_WIDTH / 12, LINE_WIDTH)
+
+def mouse_event():
+    if 'OX'[turn % 2] == 'X': 
+        board[mouse_row][mouse_col] = 'X'
+    else: 
+        board[mouse_row][mouse_col] = 'O'
+
+def check_result():
+    global gaming
+    global result
+
     if board[1][1] != None:
         var = board[1][1]
         for i in range(3):
             if board[0][i] == board[2][2-i] == var:
-                return 1
+                gaming = False
+                result = "o_won" if (var == "O") else "x_won"
         if board[1][0] == board[1][2] == var:
-            return 1
-    if board[0][0] != None:
+            gaming = False
+            result = "o_won" if (var == "O") else "x_won"
+    elif board[0][0] != None:
         var = board[0][0]
         if board[0][1] == board[0][2] == var or board[1][0] == board[2][0] == var:
-            return 1
-    if board[2][2] != None:
+            gaming = False
+            result = "o_won" if (var == "O") else "x_won"
+    elif board[2][2] != None:
         var = board[2][2]
         if board[2][0] == board[2][1] == var or board[0][2] == board[1][2] == var:
-            return 1
-    if turn >= 9:
-            return 2
+            gaming = False
+            result = "o_won" if (var == "O") else "x_won"
 
-def check_game_over():
-    if check_board():
-        if check_board() == 1:
-            message = font.render(f'{var} WON!', True, WHITE)
-        elif check_board() == 2:
-            message = font.render('TIE!', True, WHITE)
-        message_rect = message.get_rect()
-        message_rect.center = (screen_width/2, screen_height/2)
-        pygame.draw.rect(screen, BLACK, message_rect)
-        screen.blit(message, message_rect)
-        pygame.display.update()
-        pygame.time.wait(1000)
-        pygame.exit()
+    if result == "" and turn >= 9:
+            gaming = False
+            result = "tie"
 
-while running:
-    check_game_over()
+def show_result():
+    if result == "o_won":
+        message = FONT.render('O WON!', True, WHITE)
+    elif result == "x_won":
+        message = FONT.render('X WON!', True, WHITE)
+    elif result == "tie":
+        message = FONT.render('TIE!', True, WHITE)
 
+    message_rect = message.get_rect()
+    message_rect.center = (SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+    pygame.draw.rect(SCREEN, BLACK, message_rect)
+    SCREEN.blit(message, message_rect)
+
+
+while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            print(board)
-            running = False
+            pygame.quit()
+            exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if mouse_check():
+            if gaming and board[mouse_row][mouse_col] == None:
                 turn += 1
                 mouse_event()
 
     mouse_x = pygame.mouse.get_pos()[0]
     mouse_y = pygame.mouse.get_pos()[1]
-    mouse_row = int(mouse_x//(screen_width/3))
-    mouse_col = int(mouse_y//(screen_height/3))
+    mouse_row = int(mouse_x//(SCREEN_WIDTH/3))
+    mouse_col = int(mouse_y//(SCREEN_HEIGHT/3))
 
-    draw_OX()
-    grid()
+    draw_grid()
+    draw_board()
+
+    check_result()
+
+    if(not gaming):
+        show_result()
 
     pygame.display.flip()
-pygame.quit()
+    CLOCK.tick(FPS)
